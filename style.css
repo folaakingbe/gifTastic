@@ -1,0 +1,12 @@
+button,
+div,
+form,
+input {
+    margin: 5px;
+}
+    
+button,
+#add-subject {
+    background-color: red;
+    color: white;
+}
