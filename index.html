@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>It's GifTastic</title>
+    <style type="text/css">
+        button, div, form, input {
+          margin: 5px;
+        }
+        button {
+            background-color: red;
+            color: white;
+        }
+        .image {
+            float: left;
+        }
+      </style>
+</head>
+
+<body>
+    <div id="buttons">
+        
+    </div>
+    <div id="search">
+        <form id="gif-form">
+            <label for="search-input">Add a Subject</label>
+            <input type="text" id="search-input">
+            <br>
+    
+            <input id="add-subject" type="submit" value="New Search">
+        </form>
+    </div>
+    <div id="gifs">
+
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        var zooArray = ["cat", "dog", "bird", "fish", "hamster"]
+        var limit = 10;
+
+        function generateButton() {
+            $("#buttons").empty();
+            for (i = 0; i < zooArray.length; i++) {
+                var newButton = $("<button>");
+                newButton.addClass("animal");
+                newButton.attr("data-name", zooArray[i]);
+                newButton.text(zooArray[i]);
+                $("#buttons").append(newButton);
+            }
+        }
+
+        generateButton();
+        
+        // $(document).ready(function() {
+        $("#add-subject").on("click", function(event) {
+            event.preventDefault();
+            var newSearch = $("#search-input").val().trim();
+            zooArray.push(newSearch);
+            generateButton();
+            console.log("that");
+        });
+
+        $(document).on("click", ".animal", function() {
+            console.log("this");
+            $("#gifs").empty();
+            var animal = $(this).attr("data-name");
+            var queryURL = "https://api.giphy.com/v1/gifs/search?api_key=dc6zaTOxFJmzC&q=" + animal + "&limit=" + limit;
+            
+            $.ajax({
+                url: queryURL,
+                method: "GET"
+            }).then(function (response) {
+                console.log(response);
+                var results = response.data;
+                console.log(results.length);
+
+                for (var i = 0; i < results.length; i++) {
+                    var gifDiv = $("<div> class=image");
+
+                    var rating = results[i].rating;
+
+                    var p = $("<p>").text("Rating: " + rating);
+
+                    var gifImage = $("<img>");
+                    gifImage.attr("src", results[i].images.fixed_height_still.url);
+                    gifImage.attr("data-state", "still");
+                    gifImage.attr("data-still", results[i].images.fixed_height_still.url);
+                    gifImage.attr("data-animate", results[i].images.fixed_height.url);
+                    gifImage.addClass("gif");
+
+                    gifDiv.prepend(gifImage);
+                    gifDiv.prepend(p);
+
+                    $("#gifs").prepend(gifDiv);
+                }
+            });
+        });
+
+        $(document).on("click", ".gif", function() {
+            console.log("there");
+            var state = $(this).attr("data-state");
+            console.log(state);
+            
+            if (state == "still") {
+                $(this).attr("src", $(this).attr("data-animate"));
+                $(this).attr("data-state", "animate");
+            } else if (state == "animate") {
+                $(this).attr("src", $(this).attr("data-still"));
+                $(this).attr("data-state", "still");
+            }
+            else {
+                console.log("error");
+            }
+
+            
+        });
+    // });
+        
+    </script>
+</body>
+
+</html>
